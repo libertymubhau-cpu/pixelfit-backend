@@ -331,15 +331,18 @@
   //  ⚙️  CONFIGURATION — replace with your Stripe keys
   //  See setup guide at bottom of file
   // ═════════════════════════════════════════════════════
-  const CFG = {
-    stripeKey:      'pk_test_YOUR_PUBLISHABLE_KEY_HERE',
-    priceMonthly:   'price_YOUR_MONTHLY_PRICE_ID',
-    priceYearly:    'price_YOUR_YEARLY_PRICE_ID',
-    checkoutEndpoint: '/api/create-checkout-session',  // your backend
-    successUrl: 'https://pixelfit.io/success?session_id={CHECKOUT_SESSION_ID}',
-    cancelUrl:  'https://pixelfit.io/image-resizer',
+ const CFG = {
+    stripeKey:        'pk_live_51T02vOPzAs75XzTZiiEY4V4JYKCbe49oupOzJaXYu9AkbEwojffHh9UCnpAFAWB0KWcYY141JHbDHVrJCahUCU4x00HHumRgBJ',
+    priceMonthly:    'price_1T3qcnKFhrsoV1NCQK8DaAkk',
+    priceYearly:     'price_1T3qdVKFhrsiV1NC1imwoGyl',
+    // The "Cause": Your Backend Engine
+    apiEndpoint:      'https://pixelfit-backend.onrender.com/api',
+    checkoutEndpoint: 'https://pixelfit-backend.onrender.com/api/create-checkout-session', 
+    // The "Effect": Your Frontend Face (now matching pixelfit)
+    successUrl: 'https://pixelfit.onrender.com/success?session_id={CHECKOUT_SESSION_ID}',
+    cancelUrl:  'https://pixelfit.onrender.com/social-image-resizer.html',
     freeLimit: 5,
-  };
+};
   // ═════════════════════════════════════════════════════
 
   const PLATFORMS = [
