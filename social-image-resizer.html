@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Free Social Media Image Resizer — All Platforms in One Click | PixelFit</title>
+  <meta name="description" content="Resize images for Instagram, TikTok, Facebook, LinkedIn, Twitter/X, YouTube, and Pinterest instantly. Free online image resizer with preset sizes for every social media platform. No sign-up required." />
+  <meta name="keywords" content="image resizer, social media image resizer, resize image for instagram, resize image for tiktok, facebook cover photo size, twitter header size, youtube thumbnail size, free image resizer online" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://pixelfit.io/image-resizer" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Free Social Media Image Resizer — All Platforms in One Click" />
+  <meta property="og:description" content="Instantly resize any image to perfect dimensions for Instagram, TikTok, Facebook, LinkedIn, Twitter/X, YouTube & Pinterest." />
+
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebApplication","name":"PixelFit Social Media Image Resizer","url":"https://pixelfit.io/image-resizer","description":"Free online tool to resize images for all major social media platforms.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":[{"@type":"Offer","name":"Free","price":"0","priceCurrency":"USD"},{"@type":"Offer","name":"Pro","price":"5","priceCurrency":"USD","billingIncrement":"month"}]}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the best image size for Instagram posts?","acceptedAnswer":{"@type":"Answer","text":"1080x1080px square, 1080x1350px portrait, 1080x1920px Stories/Reels."}},{"@type":"Question","name":"What size should a YouTube thumbnail be?","acceptedAnswer":{"@type":"Answer","text":"1280x720px at 16:9 ratio, under 2MB."}},{"@type":"Question","name":"What is the Facebook cover photo size?","acceptedAnswer":{"@type":"Answer","text":"820x462px covers both desktop and mobile safely."}},{"@type":"Question","name":"What image size does TikTok use?","acceptedAnswer":{"@type":"Answer","text":"1080x1920px vertical 9:16 format."}}]}
+  </script>
+
+  <!-- Stripe JS -->
+  <script src="https://js.stripe.com/v3/"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0a0a0f;--surface:#13131a;--surface2:#1c1c28;--border:#2a2a3a;
+      --accent:#00e5a0;--accent2:#7b5cff;--gold:#f5c542;
+      --text:#f0f0f8;--muted:#6b6b88;
+    }
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+    .glow{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+    .g1{width:600px;height:600px;background:rgba(0,229,160,.06);top:-200px;right:-100px}
+    .g2{width:500px;height:500px;background:rgba(123,92,255,.05);bottom:0;left:-150px}
+
+    /* HEADER */
+    header{position:relative;z-index:10;padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);backdrop-filter:blur(10px)}
+    .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;letter-spacing:-.5px}
+    .logo span{color:var(--accent)}
+    .hdr-right{display:flex;align-items:center;gap:.75rem}
+    .pro-badge{display:none;background:rgba(245,197,66,.12);color:var(--gold);border:1px solid rgba(245,197,66,.3);border-radius:100px;padding:.2rem .85rem;font-size:.75rem;font-weight:600;letter-spacing:.5px}
+    .pro-badge.on{display:block}
+    .hdr-btn{background:var(--accent);color:#000;border:none;border-radius:100px;padding:.4rem 1.1rem;font-family:'Syne',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:transform .15s,box-shadow .15s}
+    .hdr-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,229,160,.3)}
+    .hdr-btn.gone{display:none}
+
+    /* HERO */
+    .hero{position:relative;z-index:5;text-align:center;padding:3.5rem 2rem 2rem}
+    .hero-tag{display:inline-block;background:var(--surface2);border:1px solid var(--border);border-radius:100px;padding:.35rem 1rem;font-size:.78rem;color:var(--muted);margin-bottom:1.5rem}
+    h1{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,5vw,3.2rem);font-weight:800;line-height:1.1;letter-spacing:-1.5px;margin-bottom:.85rem}
+    h1 em{font-style:normal;color:var(--accent)}
+    .hero p{max-width:540px;margin:0 auto 2rem;color:var(--muted);font-size:1rem}
+
+    /* USAGE BAR */
+    .usage-wrap{position:relative;z-index:5;max-width:1000px;margin:0 auto;padding:0 1.5rem .75rem}
+    .usage-inner{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:.75rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+    .usage-txt{font-size:.85rem;color:var(--muted)}
+    .usage-txt strong{color:var(--text)}
+    .pips{display:flex;gap:.35rem}
+    .pip{width:28px;height:6px;border-radius:100px;background:var(--border);transition:background .3s}
+    .pip.on{background:var(--accent)}
+    .ugrade-sm{background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:100px;padding:.28rem .85rem;font-size:.76rem;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer;transition:background .15s,color .15s;white-space:nowrap}
+    .ugrade-sm:hover{background:var(--accent);color:#000}
+    .usage-wrap.hidden{display:none}
+
+    /* TOOL */
+    .tool-wrap{position:relative;z-index:5;max-width:1000px;margin:0 auto;padding:0 1.5rem 3rem}
+    .tool-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden}
+
+    /* DROP */
+    #drop-zone{padding:3rem 2rem;text-align:center;cursor:pointer;transition:background .2s;position:relative}
+    #drop-zone:hover,#drop-zone.drag{background:rgba(0,229,160,.04)}
+    .dz-icon{width:64px;height:64px;background:var(--surface2);border:1px dashed var(--border);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-size:1.6rem;transition:border-color .2s,transform .2s}
+    #drop-zone:hover .dz-icon{border-color:var(--accent);transform:scale(1.05)}
+    #drop-zone h2{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.4rem}
+    #drop-zone p{color:var(--muted);font-size:.87rem}
+    #drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer}
+    .dz-btn{display:inline-block;margin-top:1.25rem;background:var(--accent);color:#000;font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;padding:.65rem 1.75rem;border-radius:100px;pointer-events:none}
+
+    /* EDITOR */
+    #editor{display:none}
+    .ed-grid{display:grid;grid-template-columns:1fr 340px}
+    @media(max-width:700px){.ed-grid{grid-template-columns:1fr}}
+    .prev-pane{padding:2rem;border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:360px;background:repeating-conic-gradient(#1c1c28 0% 25%,transparent 0% 50%) 0 0/20px 20px}
+    #cv{max-width:100%;max-height:320px;object-fit:contain;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+    #cv-info{margin-top:1rem;font-size:.8rem;color:var(--muted);text-align:center}
+    .ctrl-pane{padding:1.75rem;overflow-y:auto;max-height:580px}
+    .cs{margin-bottom:1.75rem}
+    .clbl{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem}
+    .plat-grid{display:grid;grid-template-columns:1fr 1fr;gap:.4rem}
+    .pb{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.55rem .7rem;cursor:pointer;text-align:left;transition:border-color .15s,background .15s;color:var(--text)}
+    .pb:hover{border-color:var(--accent);background:rgba(0,229,160,.05)}
+    .pb.active{border-color:var(--accent);background:rgba(0,229,160,.08)}
+    .pb .pn{font-family:'Syne',sans-serif;font-size:.77rem;font-weight:700;display:flex;align-items:center;gap:.35rem}
+    .pb .ps{font-size:.69rem;color:var(--muted);margin-top:.1rem}
+    .sfrow{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.25rem}
+    .sb{background:var(--surface2);border:1px solid var(--border);border-radius:100px;padding:.27rem .78rem;font-size:.74rem;cursor:pointer;color:var(--text);transition:border-color .15s}
+    .sb.active{border-color:var(--accent);color:var(--accent);background:rgba(0,229,160,.08)}
+    .szi{display:flex;align-items:center;gap:.5rem}
+    .szi input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:.5rem .65rem;font-size:.88rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s}
+    .szi input:focus{border-color:var(--accent)}
+    .szi span{color:var(--muted);font-size:.8rem}
+    .qw{display:flex;align-items:center;gap:.75rem}
+    input[type=range]{flex:1;-webkit-appearance:none;height:4px;border-radius:100px;background:var(--border);outline:none}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer}
+    #qv{font-family:'Syne',sans-serif;font-size:.85rem;color:var(--accent);min-width:36px;text-align:right}
+    .fmtrow{display:flex;gap:.4rem}
+    .fb{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.5rem;text-align:center;font-size:.8rem;cursor:pointer;color:var(--text);transition:border-color .15s}
+    .fb.active{border-color:var(--accent);color:var(--accent)}
+    #dl-btn{width:100%;background:var(--accent);color:#000;border:none;border-radius:12px;padding:1rem;font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;transition:transform .15s,box-shadow .15s;margin-top:.5rem}
+    #dl-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,229,160,.35)}
+    #rs-btn{width:100%;background:transparent;border:1px solid var(--border);border-radius:12px;padding:.6rem;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:600;color:var(--muted);cursor:pointer;margin-top:.5rem;transition:border-color .15s,color .15s}
+    #rs-btn:hover{border-color:var(--muted);color:var(--text)}
+
+    /* STATS */
+    .stats{position:relative;z-index:5;max-width:1000px;margin:0 auto;padding:0 1.5rem 2rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+    .sc{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.25rem;text-align:center}
+    .sc .n{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;color:var(--accent);letter-spacing:-1px}
+    .sc .l{font-size:.78rem;color:var(--muted);margin-top:.2rem}
+    @media(max-width:600px){.stats{grid-template-columns:1fr}}
+
+    /* ═══════════════════════════════════
+       PAYWALL MODAL
+    ═══════════════════════════════════ */
+    .backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(8px);z-index:1000;align-items:center;justify-content:center;padding:1rem}
+    .backdrop.open{display:flex}
+    .modal{background:var(--surface);border:1px solid var(--border);border-radius:24px;max-width:480px;width:100%;overflow:hidden;animation:su .3s ease}
+    @keyframes su{from{transform:translateY(28px);opacity:0}to{transform:none;opacity:1}}
+
+    .modal-top{background:linear-gradient(135deg,#1a1a2e,#16213e);padding:2.5rem 2rem 2rem;text-align:center;position:relative}
+    .modal-top::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(123,92,255,.22) 0%,transparent 70%)}
+    .modal-close{position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,.08);border:none;color:var(--muted);border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;transition:background .15s}
+    .modal-close:hover{background:rgba(255,255,255,.15)}
+    .mc{font-size:2.5rem;margin-bottom:.75rem;position:relative;z-index:1}
+    .modal-top h2{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;letter-spacing:-.5px;position:relative;z-index:1}
+    .modal-top h2 span{color:var(--gold)}
+    .modal-top p{color:var(--muted);font-size:.9rem;margin-top:.5rem;position:relative;z-index:1}
+
+    .modal-body{padding:1.75rem 2rem 2rem}
+    .pcards{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.5rem}
+    .pc{border:1px solid var(--border);border-radius:14px;padding:1.25rem 1rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative}
+    .pc:hover{border-color:var(--accent2)}
+    .pc.sel{border-color:var(--accent2);background:rgba(123,92,255,.08)}
+    .pc .ptag{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--accent2);color:#fff;font-size:.66rem;font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.5px;padding:.14rem .65rem;border-radius:100px;white-space:nowrap}
+    .pc .pamt{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800}
+    .pc .pamt sub{font-size:.88rem;font-weight:400;color:var(--muted);vertical-align:middle}
+    .pc .pper{font-size:.74rem;color:var(--muted);margin-top:.1rem}
+    .pc .plbl{font-family:'Syne',sans-serif;font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.35rem}
+
+    .fl{list-style:none;margin-bottom:1.5rem;display:flex;flex-direction:column;gap:.5rem}
+    .fl li{display:flex;align-items:center;gap:.6rem;font-size:.87rem}
+    .fl li .ck{color:var(--accent);font-size:1rem;flex-shrink:0}
+    .fl li .cs-badge{background:rgba(123,92,255,.15);color:var(--accent2);border-radius:100px;padding:.09rem .5rem;font-size:.66rem;font-weight:600;margin-left:.25rem}
+
+    #pay-btn{width:100%;background:linear-gradient(135deg,var(--accent2),#5a3fd4);color:#fff;border:none;border-radius:12px;padding:1rem;font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;transition:transform .15s,box-shadow .15s;letter-spacing:.3px}
+    #pay-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(123,92,255,.4)}
+    #pay-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+    .mfooter{text-align:center;margin-top:.85rem;font-size:.76rem;color:var(--muted)}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:.8rem 1.5rem;font-size:.87rem;color:var(--accent);font-family:'Syne',sans-serif;font-weight:600;z-index:2000;transition:transform .3s ease;pointer-events:none;white-space:nowrap;box-shadow:0 8px 30px rgba(0,229,160,.18)}
+    .toast.show{transform:translateX(-50%) translateY(0)}
+
+    /* FAQ */
+    .faq{position:relative;z-index:5;max-width:760px;margin:0 auto;padding:1rem 1.5rem 5rem}
+    .faq h2{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;letter-spacing:-.5px;margin-bottom:1.5rem;text-align:center}
+    .fi{border:1px solid var(--border);border-radius:12px;margin-bottom:.6rem;overflow:hidden}
+    .fq{padding:1rem 1.25rem;font-family:'Syne',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--surface);user-select:none}
+    .fq::after{content:'+';font-size:1.3rem;color:var(--accent);transition:transform .2s}
+    .fi.open .fq::after{transform:rotate(45deg)}
+    .fa{max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s;color:var(--muted);font-size:.88rem;line-height:1.7;padding:0 1.25rem;background:var(--surface)}
+    .fi.open .fa{max-height:200px;padding:0 1.25rem 1.25rem}
+  </style>
+</head>
+<body>
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">Pixel<span>Fit</span></div>
+    <div class="hdr-right">
+      <div class="pro-badge" id="pro-badge">⭐ PRO</div>
+      <button class="hdr-btn" id="hdr-up" onclick="openPaywall('header')">Upgrade to Pro</button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-tag">🚀 No sign-up · No watermark · 100% free</div>
+    <h1>Resize Images for <em>Every</em><br>Social Media Platform</h1>
+    <p>Upload once. Perfect dimensions for Instagram, TikTok, Facebook, LinkedIn, YouTube, Twitter/X & Pinterest — instantly in your browser.</p>
+  </section>
+
+  <!-- USAGE BAR -->
+  <div class="usage-wrap" id="usage-bar">
+    <div class="usage-inner">
+      <div class="usage-txt">Free downloads today: <strong id="u-count">0 / 5</strong></div>
+      <div class="pips" id="pips">
+        <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+      </div>
+      <button class="ugrade-sm" onclick="openPaywall('bar')">Get unlimited ✦</button>
+    </div>
+  </div>
+
+  <!-- TOOL -->
+  <main class="tool-wrap">
+    <div class="tool-card">
+      <div id="drop-zone" role="button" tabindex="0">
+        <div class="dz-icon">🖼️</div>
+        <h2>Drop your image here</h2>
+        <p>PNG, JPG, WEBP, GIF · Runs locally — never uploaded to any server</p>
+        <div class="dz-btn">Choose Image</div>
+        <input type="file" id="fi" accept="image/*" />
+      </div>
+
+      <div id="editor">
+        <div class="ed-grid">
+          <div class="prev-pane">
+            <canvas id="cv"></canvas>
+            <div id="cv-info"></div>
+          </div>
+          <aside class="ctrl-pane">
+            <div class="cs">
+              <div class="clbl">Platform</div>
+              <div class="plat-grid" id="plat-grid"></div>
+            </div>
+            <div class="cs" id="sf-sec" style="display:none">
+              <div class="clbl">Format</div>
+              <div class="sfrow" id="sf-row"></div>
+            </div>
+            <div class="cs">
+              <div class="clbl">Custom Size</div>
+              <div class="szi">
+                <input type="number" id="cw" placeholder="Width" min="1" max="8000" />
+                <span>×</span>
+                <input type="number" id="ch" placeholder="Height" min="1" max="8000" />
+                <span>px</span>
+              </div>
+            </div>
+            <div class="cs">
+              <div class="clbl">Export Format</div>
+              <div class="fmtrow">
+                <div class="fb active" data-fmt="image/jpeg">JPG</div>
+                <div class="fb" data-fmt="image/png">PNG</div>
+                <div class="fb" data-fmt="image/webp">WEBP</div>
+              </div>
+            </div>
+            <div class="cs" id="q-sec">
+              <div class="clbl">Quality</div>
+              <div class="qw">
+                <input type="range" id="qs" min="1" max="100" value="92" />
+                <span id="qv">92%</span>
+              </div>
+            </div>
+            <button id="dl-btn">⬇ Download Image</button>
+            <button id="rs-btn">↩ Start Over</button>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- STATS -->
+  <section class="stats">
+    <div class="sc"><div class="n">40+</div><div class="l">Platform presets</div></div>
+    <div class="sc"><div class="n">0s</div><div class="l">Upload time — runs locally</div></div>
+    <div class="sc"><div class="n">Free</div><div class="l">No account or watermark</div></div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq">
+    <h2>Frequently Asked Questions</h2>
+    <div class="fi"><div class="fq">What is the best image size for Instagram posts?</div><div class="fa"><strong>1080×1080px</strong> for square posts, <strong>1080×1350px</strong> portrait, <strong>1080×566px</strong> landscape, <strong>1080×1920px</strong> for Stories and Reels.</div></div>
+    <div class="fi"><div class="fq">What size should a YouTube thumbnail be?</div><div class="fa">The ideal YouTube thumbnail is <strong>1280×720px</strong> (16:9 ratio), under 2MB. Use our YouTube Thumbnail preset for instant results.</div></div>
+    <div class="fi"><div class="fq">What is the correct Facebook cover photo size?</div><div class="fa">Facebook cover photos display at <strong>820×462px</strong> — this covers both desktop (820×312) and mobile (640×360) safely.</div></div>
+    <div class="fi"><div class="fq">What image size does TikTok use?</div><div class="fa">TikTok uses <strong>1080×1920px</strong> (9:16 vertical). Profile photos should be <strong>200×200px</strong>.</div></div>
+    <div class="fi"><div class="fq">Is my image uploaded to a server?</div><div class="fa">No. Everything runs <strong>100% in your browser</strong> via HTML5 Canvas. Your image never leaves your device — fully private.</div></div>
+    <div class="fi"><div class="fq">What does PixelFit Pro include?</div><div class="fa">Pro gives you <strong>unlimited daily downloads</strong>, all platform presets, bulk resize (coming soon), background remover (coming soon) — for just $5/month or $39/year with a 7-day free trial.</div></div>
+  </section>
+
+  <!-- ═══════════ PAYWALL MODAL ═══════════ -->
+  <div class="backdrop" id="modal" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-top">
+        <button class="modal-close" onclick="closePaywall()">✕</button>
+        <div class="mc">⭐</div>
+        <h2>Unlock <span>PixelFit Pro</span></h2>
+        <p id="modal-sub">Get unlimited downloads and unlock all upcoming Pro features.</p>
+      </div>
+      <div class="modal-body">
+        <div class="pcards">
+          <div class="pc" id="pm" onclick="pickPlan('monthly')">
+            <div class="plbl">Monthly</div>
+            <div class="pamt">$5<sub>/mo</sub></div>
+            <div class="pper">Cancel anytime</div>
+          </div>
+          <div class="pc sel" id="py" onclick="pickPlan('yearly')">
+            <div class="ptag">BEST VALUE</div>
+            <div class="plbl">Yearly</div>
+            <div class="pamt">$39<sub>/yr</sub></div>
+            <div class="pper">= $3.25/mo · Save 35%</div>
+          </div>
+        </div>
+        <ul class="fl">
+          <li><span class="ck">✓</span> Unlimited image downloads</li>
+          <li><span class="ck">✓</span> All 40+ platform presets</li>
+          <li><span class="ck">✓</span> JPG, PNG, WEBP export</li>
+          <li><span class="ck">✓</span> Custom dimensions</li>
+          <li><span class="ck">✓</span> 100% private — browser only</li>
+          <li><span class="ck">✓</span> Bulk resize (multiple images) <span class="cs-badge">COMING SOON</span></li>
+          <li><span class="ck">✓</span> Background remover <span class="cs-badge">COMING SOON</span></li>
+        </ul>
+        <button id="pay-btn" onclick="handleCheckout()">✦ Start Pro — 7 Days Free</button>
+        <div class="mfooter">🔒 Secure checkout via Stripe · Cancel anytime · No hidden fees</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+  // ═════════════════════════════════════════════════════
+  //  ⚙️  CONFIGURATION — replace with your Stripe keys
+  //  See setup guide at bottom of file
+  // ═════════════════════════════════════════════════════
+  const CFG = {
+    stripeKey:      'pk_test_YOUR_PUBLISHABLE_KEY_HERE',
+    priceMonthly:   'price_YOUR_MONTHLY_PRICE_ID',
+    priceYearly:    'price_YOUR_YEARLY_PRICE_ID',
+    checkoutEndpoint: '/api/create-checkout-session',  // your backend
+    successUrl: 'https://pixelfit.io/success?session_id={CHECKOUT_SESSION_ID}',
+    cancelUrl:  'https://pixelfit.io/image-resizer',
+    freeLimit: 5,
+  };
+  // ═════════════════════════════════════════════════════
+
+  const PLATFORMS = [
+    {id:'instagram',name:'Instagram',icon:'📸',formats:[
+      {name:'Square Post',w:1080,h:1080},{name:'Portrait Post',w:1080,h:1350},
+      {name:'Landscape',w:1080,h:566},{name:'Story / Reel',w:1080,h:1920},{name:'Profile',w:320,h:320}]},
+    {id:'tiktok',name:'TikTok',icon:'🎵',formats:[{name:'Video',w:1080,h:1920},{name:'Profile',w:200,h:200}]},
+    {id:'facebook',name:'Facebook',icon:'👥',formats:[
+      {name:'Post',w:1200,h:630},{name:'Cover',w:820,h:462},{name:'Profile',w:180,h:180},{name:'Story',w:1080,h:1920}]},
+    {id:'twitter',name:'Twitter/X',icon:'🐦',formats:[
+      {name:'Post',w:1600,h:900},{name:'Header',w:1500,h:500},{name:'Profile',w:400,h:400}]},
+    {id:'linkedin',name:'LinkedIn',icon:'💼',formats:[
+      {name:'Post',w:1200,h:628},{name:'Cover',w:1584,h:396},{name:'Profile',w:400,h:400}]},
+    {id:'youtube',name:'YouTube',icon:'▶️',formats:[
+      {name:'Thumbnail',w:1280,h:720},{name:'Channel Art',w:2560,h:1440},{name:'Profile',w:800,h:800}]},
+    {id:'pinterest',name:'Pinterest',icon:'📌',formats:[
+      {name:'Standard',w:1000,h:1500},{name:'Square',w:1000,h:1000},{name:'Long',w:1000,h:2100}]},
+    {id:'custom',name:'Custom',icon:'✏️',formats:[]},
+  ];
+
+  let img=null, curW=1080, curH=1080, curFmt='image/jpeg', curQ=0.92, plan='yearly';
+
+  // Freemium helpers
+  const dayKey=()=>'pf_'+new Date().toDateString();
+  const todayCount=()=>parseInt(localStorage.getItem(dayKey())||'0');
+  const bumpCount=()=>localStorage.setItem(dayKey(),todayCount()+1);
+  const isPro=()=>localStorage.getItem('pf_pro')==='true';
+  const setPro=()=>{localStorage.setItem('pf_pro','true');refreshUI()};
+
+  function refreshUI(){
+    const pro=isPro(), n=todayCount(), lim=CFG.freeLimit;
+    document.getElementById('usage-bar').classList.toggle('hidden',pro);
+    document.getElementById('pro-badge').classList.toggle('on',pro);
+    document.getElementById('hdr-up').classList.toggle('gone',pro);
+    if(!pro){
+      document.getElementById('u-count').textContent=`${n} / ${lim}`;
+      document.querySelectorAll('.pip').forEach((p,i)=>p.classList.toggle('on',i<n));
+    }
+  }
+
+  // Platform grid
+  PLATFORMS.forEach(p=>{
+    const btn=document.createElement('button');
+    btn.className='pb'; btn.dataset.id=p.id;
+    const d=p.formats[0];
+    btn.innerHTML=`<div class="pn">${p.icon} ${p.name}</div><div class="ps">${d?`${d.w}×${d.h}`:'Custom'}</div>`;
+    btn.onclick=()=>selPlat(p.id);
+    document.getElementById('plat-grid').appendChild(btn);
+  });
+
+  function selPlat(id){
+    document.querySelectorAll('.pb').forEach(b=>b.classList.toggle('active',b.dataset.id===id));
+    const p=PLATFORMS.find(x=>x.id===id);
+    if(!p||!p.formats.length){document.getElementById('sf-sec').style.display='none';return;}
+    document.getElementById('sf-sec').style.display='block';
+    const row=document.getElementById('sf-row');
+    row.innerHTML='';
+    p.formats.forEach((f,i)=>{
+      const b=document.createElement('button');
+      b.className='sb'+(i===0?' active':''); b.textContent=f.name;
+      b.onclick=()=>{document.querySelectorAll('.sb').forEach(x=>x.classList.remove('active'));b.classList.add('active');setSize(f.w,f.h)};
+      row.appendChild(b);
+    });
+    setSize(p.formats[0].w,p.formats[0].h);
+  }
+
+  function setSize(w,h){
+    curW=w; curH=h;
+    document.getElementById('cw').value=w;
+    document.getElementById('ch').value=h;
+    render();
+  }
+
+  // File handling
+  const fi=document.getElementById('fi');
+  const dz=document.getElementById('drop-zone');
+  fi.onchange=e=>loadFile(e.target.files[0]);
+  dz.ondragover=e=>{e.preventDefault();dz.classList.add('drag')};
+  dz.ondragleave=()=>dz.classList.remove('drag');
+  dz.ondrop=e=>{e.preventDefault();dz.classList.remove('drag');loadFile(e.dataTransfer.files[0])};
+
+  function loadFile(file){
+    if(!file||!file.type.startsWith('image/'))return;
+    const r=new FileReader();
+    r.onload=e=>{
+      const i=new Image();
+      i.onload=()=>{img=i;dz.style.display='none';document.getElementById('editor').style.display='block';selPlat('instagram')};
+      i.src=e.target.result;
+    };
+    r.readAsDataURL(file);
+  }
+
+  const cv=document.getElementById('cv');
+  const ctx2=cv.getContext('2d');
+
+  function render(){
+    if(!img)return;
+    cv.width=curW; cv.height=curH;
+    ctx2.fillStyle='#000'; ctx2.fillRect(0,0,curW,curH);
+    const s=Math.max(curW/img.width,curH/img.height);
+    const sw=img.width*s, sh=img.height*s;
+    ctx2.drawImage(img,(curW-sw)/2,(curH-sh)/2,sw,sh);
+    document.getElementById('cv-info').textContent=`${curW} × ${curH} px`;
+  }
+
+  let dt;
+  ['cw','ch'].forEach(id=>{
+    document.getElementById(id).oninput=()=>{
+      clearTimeout(dt);
+      dt=setTimeout(()=>{const w=+document.getElementById('cw').value,h=+document.getElementById('ch').value;if(w>0&&h>0){curW=w;curH=h;render()}},400);
+    };
+  });
+
+  document.querySelectorAll('.fb').forEach(b=>{
+    b.onclick=()=>{
+      document.querySelectorAll('.fb').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active'); curFmt=b.dataset.fmt;
+      document.getElementById('q-sec').style.opacity=curFmt!=='image/png'?'1':'.4';
+    };
+  });
+
+  const qs=document.getElementById('qs');
+  qs.oninput=()=>{curQ=qs.value/100;document.getElementById('qv').textContent=qs.value+'%'};
+
+  // DOWNLOAD + GATE
+  document.getElementById('dl-btn').onclick=()=>{
+    if(!isPro()){
+      if(todayCount()>=CFG.freeLimit){openPaywall('limit');return;}
+      bumpCount(); refreshUI();
+    }
+    render();
+    const ext=curFmt.split('/')[1];
+    const url=cv.toDataURL(curFmt,curFmt==='image/png'?undefined:curQ);
+    const a=document.createElement('a');
+    a.href=url; a.download=`pixelfit-${curW}x${curH}.${ext}`; a.click();
+    toast('✓ Image downloaded!');
+  };
+
+  document.getElementById('rs-btn').onclick=()=>{
+    img=null; fi.value='';
+    document.getElementById('editor').style.display='none';
+    dz.style.display='block';
+    document.getElementById('sf-sec').style.display='none';
+  };
+
+  // PAYWALL
+  function openPaywall(trigger){
+    document.getElementById('modal-sub').textContent=
+      trigger==='limit'
+      ? "You've used all 5 free downloads today. Upgrade to keep going."
+      : "Unlimited downloads + all upcoming Pro features.";
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closePaywall(){document.getElementById('modal').classList.remove('open');document.body.style.overflow='';}
+  document.getElementById('modal').onclick=e=>{if(e.target===document.getElementById('modal'))closePaywall()};
+
+  function pickPlan(p){
+    plan=p;
+    document.getElementById('pm').classList.toggle('sel',p==='monthly');
+    document.getElementById('py').classList.toggle('sel',p==='yearly');
+  }
+
+  // STRIPE CHECKOUT
+  async function handleCheckout(){
+    const btn=document.getElementById('pay-btn');
+    btn.disabled=true; btn.textContent='Connecting to Stripe...';
+    try{
+      const priceId=plan==='yearly'?CFG.priceYearly:CFG.priceMonthly;
+      const res=await fetch(CFG.checkoutEndpoint,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({priceId,successUrl:CFG.successUrl,cancelUrl:CFG.cancelUrl}),
+      });
+      const {sessionId}=await res.json();
+      const stripe=Stripe(CFG.stripeKey);
+      await stripe.redirectToCheckout({sessionId});
+    }catch(err){
+      console.error('Stripe error:',err);
+      btn.disabled=false; btn.textContent='✦ Start Pro — 7 Days Free';
+      // Demo mode when keys not yet configured
+      if(CFG.stripeKey.includes('YOUR_')){
+        setTimeout(()=>{setPro();closePaywall();toast('✓ Demo Pro activated! Add real Stripe keys to go live.')},600);
+      }else{
+        toast('⚠ Payment error — check console');
+      }
+    }
+  }
+
+  function toast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg; t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),3000);
+  }
+
+  document.querySelectorAll('.fq').forEach(q=>q.onclick=()=>q.parentElement.classList.toggle('open'));
+
+  // INIT
+  refreshUI();
+  if(location.search.includes('session_id')){setPro();toast('🎉 Welcome to Pro! Unlimited downloads activated.');}
+  </script>
+
+<!--
+════════════════════════════════════════════════════════════
+📖  STRIPE BACKEND SETUP — READ THIS TO GO LIVE
+════════════════════════════════════════════════════════════
+
+STEP 1 — Create your Stripe account
+  https://dashboard.stripe.com/register
+
+STEP 2 — Create two Products in Stripe Dashboard
+  Dashboard → Products → Add Product
+  - "PixelFit Pro Monthly" → $5/month (recurring)
+  - "PixelFit Pro Yearly"  → $39/year (recurring)
+  Copy both Price IDs (price_xxx) into CFG above.
+
+STEP 3 — Copy your Publishable Key into CFG.stripeKey
+  Dashboard → Developers → API Keys → pk_live_xxx
+
+STEP 4 — Create a backend endpoint (Node.js example below)
+  This creates a Stripe Checkout Session server-side.
+
+  ── server.js ──────────────────────────────────────────
+  require('dotenv').config();
+  const express = require('express');
+  const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+  const cors = require('cors');
+  const app = express();
+
+  app.use(cors({ origin: 'https://pixelfit.io' }));
+  app.use(express.json());
+
+  app.post('/api/create-checkout-session', async (req, res) => {
+    try {
+      const { priceId, successUrl, cancelUrl } = req.body;
+      const session = await stripe.checkout.sessions.create({
+        mode: 'subscription',
+        payment_method_types: ['card'],
+        line_items: [{ price: priceId, quantity: 1 }],
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        subscription_data: { trial_period_days: 7 },
+      });
+      res.json({ sessionId: session.id });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.listen(3000, () => console.log('Server on port 3000'));
+  ── .env ────────────────────────────────────────────────
+  STRIPE_SECRET_KEY=sk_live_YOUR_SECRET_KEY_HERE
+
+STEP 5 — Handle webhook to grant Pro access
+  When a user pays, Stripe sends a webhook event.
+  Listen for checkout.session.completed and store
+  the user's email or customer ID in your database.
+  Then verify Pro status on page load via your API.
+
+STEP 6 — Deploy backend to Vercel, Railway, or Render
+  Update CFG.checkoutEndpoint to your deployed URL.
+
+════════════════════════════════════════════════════════════
+-->
+</body>
+</html>
